@@ -4,6 +4,14 @@
 #import "statements.typ": fit-display, numbered-display
 #import "main-defs.typ": reference-rules, russian-typography
 
+#let matrix-cell-text(cell) = {
+  let fields = cell.fields()
+  if "text" in fields { fields.text } else if "children" in fields {
+    let parts = fields.children.map(matrix-cell-text)
+    if parts.all(part => part != none) { parts.join() } else { none }
+  } else { none }
+}
+
 #let heading-anchor(it) = {
   restart-counters(it.level)
   [#metadata((kind: "numbered", family: "heading", level: it.level))<numbered>]
@@ -180,7 +188,25 @@
     show regex("[\u{0391}-\u{03A9}]"): math.italic
     it
   }
-  show math.mat: math.display
+  show math.mat: it => {
+    let cells = it.rows.flatten().map(matrix-cell-text)
+    let signed-atoms = (
+      cells.all(cell => (
+        cell != none
+          and cell.match(
+            regex("^−?([0-9]+|[A-Za-zΑ-Ωα-ω])$"),
+          )
+            != none
+      ))
+        and cells.any(cell => cell != none and cell.starts-with("−"))
+    )
+    if signed-atoms and it.align != right {
+      let fields = it.fields()
+      let rows = fields.remove("rows")
+      fields.insert("align", right)
+      math.display(math.mat(..rows, ..fields))
+    } else { math.display(it) }
+  }
   set math.cases(gap: 0.6em)
 
   set table(stroke: 0.5pt, inset: (x: 0.45em, y: 0.5em), align: horizon)
