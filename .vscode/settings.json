@@ -1,0 +1,47 @@
+{
+  "[typst]": {
+    "editor.defaultFormatter": "myriad-dreamin.tinymist",
+    "editor.formatOnSave": true,
+    "editor.rulers": [
+      80
+    ],
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.minimap.enabled": false
+  },
+  "editor.wordWrap": "off",
+  "tinymist.formatterMode": "typstyle",
+  "tinymist.formatterPrintWidth": 80,
+  "tinymist.formatterIndentSize": 2,
+  "tinymist.formatterProseWrap": true,
+  "tinymist.fontPaths": [
+    "${workspaceFolder}/assets/fonts"
+  ],
+  "tinymist.systemFonts": false,
+  "tinymist.rootPath": "${workspaceFolder}",
+  "tinymist.projectResolution": "lockDatabase",
+  "tinymist.exportPdf": "onSave",
+  "tinymist.outputPath": "$root/build/.cache/$name",
+  "tinymist.lint.enabled": true,
+  "tinymist.lint.when": "onSave",
+  "tinymist.preview.refresh": "onType",
+  "tinymist.preview.scrollSync": "onSelectionChangeByMouse",
+  "tinymist.preview.invertColors": "never",
+  "files.exclude": {
+    "**/__pycache__": true,
+    "build/.cache": true
+  },
+  "files.watcherExclude": {
+    "**/build/.cache/**": true
+  },
+  "search.exclude": {
+    "build": true
+  },
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "tinymist.typstExtraArgs": [
+    "--input=stage=final"
+  ],
+  "task.saveBeforeRun": "always"
+}

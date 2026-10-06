@@ -1,0 +1,6 @@
+extends: existence
+message: "Дефис вместо тире: между словами ставится «—»."
+level: error
+nonword: true
+tokens:
+  - '(?<=\s)-(?=\s)'

@@ -1,0 +1,142 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Херстейн: PDF",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Херстейн: prepare export",
+        "Херстейн: export (Tinymist)",
+        "Херстейн: validate PDF"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: prepare export",
+      "type": "process",
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "scripts/project.py",
+        "editor-prepare"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: export (Tinymist)",
+      "type": "typst",
+      "command": "export",
+      "export": {
+        "format": "pdf",
+        "inputPath": "${workspaceFolder}/content/main.typ",
+        "pdf.pdfTags": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: validate PDF",
+      "type": "process",
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "scripts/project.py",
+        "editor-finish"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: check",
+      "type": "process",
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "scripts/project.py",
+        "check"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: lint",
+      "type": "process",
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "scripts/project.py",
+        "lint"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: PDF without editorial notes",
+      "type": "process",
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "scripts/project.py",
+        "build-no-notes"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: corrections",
+      "type": "process",
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "scripts/project.py",
+        "corrections"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Херстейн: format",
+      "type": "process",
+      "command": "uv",
+      "args": [
+        "run",
+        "--locked",
+        "python",
+        "scripts/project.py",
+        "fmt"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

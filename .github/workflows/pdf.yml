@@ -1,0 +1,121 @@
+name: PDF and checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: '0.12.16'
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Install pinned Typst tools
+        shell: uv run --locked python {0}
+        run: |
+          import hashlib, json, os, pathlib, tarfile, urllib.request
+          config = json.loads(pathlib.Path('config/project.json').read_text())
+          target = pathlib.Path(os.environ['RUNNER_TEMP'])/'typst-tools'
+          target.mkdir()
+          for name, spec in config['linux_tools'].items():
+              archive = target/spec['url'].split('/')[-1]
+              urllib.request.urlretrieve(spec['url'], archive)
+              assert hashlib.sha256(archive.read_bytes()).hexdigest() == spec['sha256'], name
+              if spec.get('archive'):
+                  with tarfile.open(archive) as tar:
+                      tar.extractall(target/name, filter='data')
+                  executable = next(p for p in (target/name).rglob(name) if p.is_file())
+                  (target/name).rename(target/(name+'-files'))
+                  executable = target/(name+'-files')/executable.relative_to(target/name)
+                  (target/name).symlink_to(executable)
+              else:
+                  archive.rename(target/name)
+              (target/name).chmod(0o755)
+          with open(os.environ['GITHUB_PATH'], 'a') as stream:
+              stream.write(str(target)+'\n')
+      - name: Check and build
+        run: uv run --locked python scripts/project.py check
+      - name: Checksums of the published PDFs
+        working-directory: build
+        run: |
+          sha256sum herstein-1972.pdf herstein-1972.corrections.pdf \
+            herstein-1972.no-notes.pdf \
+            > SHA256SUMS
+          cat SHA256SUMS
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: herstein-1972-pdfs
+          path: |
+            build/herstein-1972.pdf
+            build/herstein-1972.corrections.pdf
+            build/herstein-1972.no-notes.pdf
+            build/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 14
+  lean:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      LEAN_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1
+        with:
+          lake-package-directory: checks/lean
+          auto-config: 'false'
+          build: 'true'
+          test: 'false'
+          lint: 'false'
+          use-mathlib-cache: 'true'
+          leanchecker: 'true'
+          leanchecker-args: '--fresh Herstein'
+      - name: Check declaration axioms
+        run: python3 checks/lean/check_axioms.py
+  release:
+    # Every commit on main is released: tag YYYY-MM-DD.N (build date in UTC
+    # and build number), the PDFs and their SHA256SUMS.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [check, lean]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: herstein-1972-pdfs
+          path: build
+      - name: Publish the release of this commit
+        working-directory: build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_SHA: ${{ github.sha }}
+          BUILD: ${{ github.run_number }}
+          TITLE: Херстейн, Некоммутативные кольца
+        run: |
+          if [[ -f SHA256SUMS ]]; then sha256sum --check SHA256SUMS; fi
+          sha256sum -- *.pdf > SHA256SUMS
+          date=$(date -u +%F)
+          tag="$date.$BUILD"
+          latest=false
+          if [[ "$(gh api "repos/$GH_REPO/commits/main" --jq .sha)" == "$SOURCE_SHA" ]]; then
+            latest=true
+          fi
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --target "$SOURCE_SHA" --latest="$latest" \
+              --title "$TITLE · $date · build $BUILD" \
+              --notes "Built on $date (UTC) from commit $SOURCE_SHA."
+          fi
+          gh release upload "$tag" ./*.pdf SHA256SUMS --clobber

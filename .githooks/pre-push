@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Refuse a direct push to main: changes go through a branch and a pull
+# request, merged by squash after the checks have passed. This hook catches
+# a direct push before it reaches the server.
+# Enable it once per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# To bypass it deliberately: git push --no-verify.
+set -euo pipefail
+
+protected='refs/heads/main'
+while read -r _ _ remote_ref _; do
+  if [ "$remote_ref" = "$protected" ]; then
+    echo "Direct pushes to main are refused: push a branch and open a pull request." >&2
+    echo "Merge it after the check and lean jobs of the workflow \"PDF and checks\" pass." >&2
+    exit 1
+  fi
+done
+exit 0

@@ -1,0 +1,49 @@
+{
+  "entry": "content/main.typ",
+  "output": "build/herstein-1972.pdf",
+  "stage": "final",
+  "pdf_navigation": {
+    "outline_left": 0
+  },
+  "page_labels": {
+    "arabic_start": 2,
+    "initial_labels": ["", "2", "3", "4", "5", "6", "7", "8", "9"]
+  },
+  "font_paths": [
+    "assets/fonts"
+  ],
+  "format_sources": [
+    "content"
+  ],
+  "tool_versions": {
+    "typst": "0.15.1",
+    "typstyle": "0.15.1",
+    "tinymist": "0.15.8"
+  },
+  "corrections_output": "build/herstein-1972.corrections.pdf",
+  "corrections_entry": "content/corrections.typ",
+  "required_text": [
+    "НЕКОММУТАТИВНЫЕ",
+    "Херстейн"
+  ],
+  "linux_tools": {
+    "typst": {
+      "url": "https://github.com/typst/typst/releases/download/v0.15.1/typst-x86_64-unknown-linux-musl.tar.xz",
+      "sha256": "a6d077d0a95eed5a2eba715b2dae06be954f624ccbf85758a03f389ded33118c",
+      "archive": true
+    },
+    "typstyle": {
+      "url": "https://github.com/typstyle-rs/typstyle/releases/download/v0.15.1/typstyle-x86_64-unknown-linux-gnu",
+      "sha256": "213c11bc2c64f7237c382b4bb1d06991530ed9d44d3a05204ca3c19615d55b99"
+    },
+    "tinymist": {
+      "url": "https://github.com/Myriad-Dreamin/tinymist/releases/download/v0.15.8/tinymist-x86_64-unknown-linux-gnu.tar.gz",
+      "sha256": "2428932e8d8b593ebc1ac4eed41fb9d3584166e1044bbcdef740b7296c348295",
+      "archive": true
+    }
+  },
+  "prose": {
+    "checker": "vale",
+    "header_band": 52.0
+  }
+}

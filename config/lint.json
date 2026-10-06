@@ -1,0 +1,13 @@
+{
+  "max_line_length": 80,
+  "chapter_files": "content/[0-9]{2}-[a-z0-9-]+\\.typ",
+  "cited_helpers": [
+    "bib-item"
+  ],
+  "literal_references": {
+    "content/52-hurwitz.typ": {
+      "@bib:Lam2005, гл. V, следствие 5.9 и теорему 5.10": "Statement numbers in Lam, Introduction to Quadratic Forms over Fields, Chapter V."
+    }
+  },
+  "local_markup": {}
+}

@@ -1,0 +1,13 @@
+[project]
+name = "herstein-1972"
+version = "1.0.0"
+description = "Build and validate Herstein, Noncommutative Rings (1972)"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "pypdf==6.14.2",
+    "PyMuPDF==1.27.2.3",
+    "Pillow==12.3.0",
+]
+
+[tool.uv]
+package = false
